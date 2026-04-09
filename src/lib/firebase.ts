@@ -1,3 +1,5 @@
+"use client";
+
 // Firebase client and auth helpers
 import { initializeApp, getApps } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -37,12 +39,22 @@ if (typeof window !== "undefined") {
   }
 }
 
-const auth = getAuth(app);
+// Only initialize auth in the browser — prevents server/runtime import errors
+let auth: ReturnType<typeof getAuth> | null = null;
+if (typeof window !== "undefined") {
+  try {
+    auth = getAuth(app);
+  } catch (e) {
+    // keep auth null if initialization fails
+    auth = null;
+  }
+}
 
 /**
  * Sign in with Google (popup). Resolves with the Firebase user credential.
  */
 export async function signInWithGoogle() {
+  if (!auth) throw new Error("Firebase Auth not initialized (must be called from the browser)");
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
   return result;
@@ -53,6 +65,7 @@ export async function signInWithGoogle() {
  * Throws if creation fails.
  */
 export async function signUpWithEmail(email: string, password: string) {
+  if (!auth) throw new Error("Firebase Auth not initialized (must be called from the browser)");
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   // Send verification email after sign up
   await fbSendEmailVerification(userCredential.user);
@@ -63,6 +76,7 @@ export async function signUpWithEmail(email: string, password: string) {
  * Sign in with email & password.
  */
 export async function signInWithEmail(email: string, password: string) {
+  if (!auth) throw new Error("Firebase Auth not initialized (must be called from the browser)");
   return signInWithEmailAndPassword(auth, email, password);
 }
 
@@ -70,6 +84,7 @@ export async function signInWithEmail(email: string, password: string) {
  * Send verification email to the currently signed-in user.
  */
 export async function sendEmailVerificationToCurrentUser() {
+  if (!auth) throw new Error("Firebase Auth not initialized (must be called from the browser)");
   if (!auth.currentUser) throw new Error("No user is signed in");
   return fbSendEmailVerification(auth.currentUser);
 }
@@ -78,6 +93,7 @@ export async function sendEmailVerificationToCurrentUser() {
  * Sign out current user.
  */
 export async function signOutUser() {
+  if (!auth) throw new Error("Firebase Auth not initialized (must be called from the browser)");
   return fbSignOut(auth);
 }
 
