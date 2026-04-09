@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
+    
     "socket": "node socket-server.js"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
+    
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
     "firebase": "^12.11.0",
@@ -35,7 +35,7 @@
     "@types/react-dom": "^18.2.14",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.32",
-    "prisma": "^7.6.0",
+    
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"
   }
