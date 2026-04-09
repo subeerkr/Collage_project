@@ -5,7 +5,9 @@ import dynamic from "next/dynamic";
 import { DeliveryAgent } from "../lib/delivery";
 import { getSocket } from "../lib/socketClient";
 
-const MapboxMap = dynamic(() => import("./OrderMap"), { ssr: false });
+const MapboxMap = dynamic(() => import("./OrderMap.js").then(m => m.default), {
+  ssr: false,
+});
 
 type PaymentMethod = "card" | "upi" | "cod";
 
@@ -24,7 +26,7 @@ export default function OrderModal({
   const [orderTime, setOrderTime] = useState<number | null>(null);
   const [estimatedMins, setEstimatedMins] = useState(10);
   const [deliveryPartner, setDeliveryPartner] = useState<DeliveryAgent | null>(
-    null
+    null,
   );
   const [customerCoords, setCustomerCoords] = useState<{
     lat: number;
@@ -121,7 +123,7 @@ export default function OrderModal({
     if (!payMethod) return;
     setProcessing(true);
     // simulate short payment processing delay
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 1200));
     setProcessing(false);
 
     // mark order placed immediately
@@ -152,13 +154,13 @@ export default function OrderModal({
 
   const billItems = useMemo(
     () =>
-      items.map((i) => ({
+      items.map(i => ({
         id: i.id,
         name: i.name,
         qty: i.quantity,
         price: i.price,
       })),
-    [items]
+    [items],
   );
 
   if (!open) return null;
@@ -182,7 +184,7 @@ export default function OrderModal({
               <div>
                 <h4 className="font-medium">Order Summary</h4>
                 <ul className="text-sm mt-2 space-y-1 max-h-40 overflow-auto">
-                  {billItems.map((b) => (
+                  {billItems.map(b => (
                     <li key={b.id} className="flex justify-between">
                       <span>
                         {b.name} × {b.qty}
@@ -323,7 +325,8 @@ export default function OrderModal({
                         {deliveryPartner.name}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {deliveryPartner.vehicle} • {deliveryPartner.vehicleNumber}
+                        {deliveryPartner.vehicle} •{" "}
+                        {deliveryPartner.vehicleNumber}
                       </p>
                     </div>
                     <a
@@ -354,8 +357,11 @@ export default function OrderModal({
                       agentPosition
                         ? { lat: agentPosition.lat, lng: agentPosition.lng }
                         : deliveryPartner
-                        ? { lat: deliveryPartner.lat, lng: deliveryPartner.lng }
-                        : null
+                          ? {
+                              lat: deliveryPartner.lat,
+                              lng: deliveryPartner.lng,
+                            }
+                          : null
                     }
                   />
                 </div>

@@ -11,15 +11,16 @@ import {
   signOut as fbSignOut,
 } from "firebase/auth";
 
+// Read config from NEXT_PUBLIC_ environment variables (set these in Vercel)
 const firebaseConfig = {
-  apiKey: "AIzaSyCw8zaRj2pTAYuSmlOS1DRbDD3QuF9RuE0",
-  authDomain: "today-12dec-2024.firebaseapp.com",
-  databaseURL: "https://today-12dec-2024-default-rtdb.firebaseio.com",
-  projectId: "today-12dec-2024",
-  storageBucket: "today-12dec-2024.firebasestorage.app",
-  messagingSenderId: "530328497707",
-  appId: "1:530328497707:web:5d1d2216c7a8b916d5c46e",
-  measurementId: "G-MQLTXWXN6T",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "AIzaSyCw8zaRj2pTAYuSmlOS1DRbDD3QuF9RuE0",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "today-12dec-2024.firebaseapp.com",
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL ?? "https://today-12dec-2024-default-rtdb.firebaseio.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "today-12dec-2024",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? "today-12dec-2024.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? "530328497707",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "1:530328497707:web:5d1d2216c7a8b916d5c46e",
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ?? "G-MQLTXWXN6T",
 };
 
 // Initialize app (guard for SSR / hot reload)

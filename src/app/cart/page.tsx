@@ -1,11 +1,10 @@
 "use client";
 import { useCart, CartItem } from "../../context/CartContext";
 import dynamic from "next/dynamic";
+import OrderModal from "../../components/OrderModal";
 import { useState } from "react";
 
-const OrderModal = dynamic(() => import("../../components/OrderModal"), {
-  ssr: false,
-});
+// OrderModal is a client component; static import ensures correct prop typing
 
 export default function CartPage() {
   const {
@@ -144,10 +143,7 @@ export default function CartPage() {
       )}
 
       {/* Keep checkout modal mounted even after cart is cleared so user sees tracking */}
-      <OrderModal
-        open={checkoutOpen}
-        onClose={() => setCheckoutOpen(false)}
-      />
+      <OrderModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </div>
   );
 }

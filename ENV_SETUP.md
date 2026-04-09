@@ -28,6 +28,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
    - ❌ Wrong: `mongodb+srv://...@cluster.mongodb.net/?retryWrites=true&w=majority`
 
 2. **Generate NEXTAUTH_SECRET**:
+
    ```bash
    openssl rand -base64 32
    ```
@@ -42,3 +43,24 @@ Visit: `http://localhost:3000/api/database`
 
 You should see a JSON response with connection status and database information.
 
+## Firebase (client) — Vercel setup
+
+This project reads Firebase config from `NEXT_PUBLIC_` environment variables so the client can access them when deployed on Vercel.
+
+Set these variables in your Vercel project (or in `.env.local` for local dev):
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=your-database-url
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
+```
+
+- For Vercel: go to the project Settings → Environment Variables and add the keys above for `Production` (and `Preview` if needed).
+- For local development: add the same keys to `.env.local` in the project root and restart the dev server.
+
+Additionally, add your Vercel domains (e.g., `your-app.vercel.app` and your custom domain) to Firebase Console → Authentication → Authorized domains so Google sign-in works from Vercel.
