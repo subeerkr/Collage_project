@@ -1,6 +1,5 @@
 "use client";
 import { useCart, CartItem } from "../../context/CartContext";
-import dynamic from "next/dynamic";
 import OrderModal from "../../components/OrderModal";
 import { useState } from "react";
 

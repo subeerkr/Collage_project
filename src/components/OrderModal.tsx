@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import OrderMap from "./OrderMap";
 import { DeliveryAgent } from "../lib/delivery";
 import { getSocket } from "../lib/socketClient";
+import { useSession } from "next-auth/react";
 
 type PaymentMethod = "card" | "upi" | "cod";
 
@@ -14,6 +15,7 @@ export default function OrderModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const { data: session } = useSession();
   const { items, subtotal, deliveryFee, grandTotal, clear } = useCart();
   const [payMethod, setPayMethod] = useState<PaymentMethod | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -172,14 +174,13 @@ export default function OrderModal({
     socket?.emit("order:start", { lat: coords.lat, lng: coords.lng });
   };
 
-
   const billItems = useMemo(
     () =>
-      items.map(i => ({
-        id: i.id,
-        name: i.name,
+      items.map((i, idx) => ({
+        id: String((i as any).id ?? idx),
+        name: String((i as any).name ?? "Item"),
         qty: i.quantity,
-        price: i.price,
+        price: Number((i as any).price ?? 0),
       })),
     [items],
   );
@@ -235,8 +236,9 @@ export default function OrderModal({
                 {(session?.user as any)?.role === "admin" ? (
                   <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
                     <p className="text-amber-800 text-sm font-medium flex items-center gap-2">
-                       <span className="text-lg">⚠️</span>
-                       Admins are not allowed to make purchases. Please use a regular customer account for shopping.
+                      <span className="text-lg">⚠️</span>
+                      Admins are not allowed to make purchases. Please use a
+                      regular customer account for shopping.
                     </p>
                   </div>
                 ) : (
@@ -285,7 +287,6 @@ export default function OrderModal({
                   </>
                 )}
               </div>
-
             </>
           ) : (
             <div className="space-y-6">
