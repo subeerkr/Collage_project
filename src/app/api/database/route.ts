@@ -10,13 +10,13 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         success: true,
-        message: "User store accessible",
-        orm: "file-store",
-        stats: { userCount },
+        message: "MongoDB connected",
+        orm: "mongodb-native",
         timestamp: new Date().toISOString(),
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
+
   } catch (err: any) {
     console.error("[api/database] ❌ Error:", err);
     return new Response(

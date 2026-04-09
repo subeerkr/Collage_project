@@ -1,10 +1,9 @@
-import { categories, products } from "../lib/products";
 import ProductCard from "../components/ProductCard";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import Carousel from "../components/Carousel";
+import { products } from "../lib/products";
 
-export default function HomePage() {
+export default async function HomePage() {
   const featured = products.slice(0, 6);
 
   return (

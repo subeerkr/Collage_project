@@ -115,12 +115,32 @@ export default function OrderModal({
     };
   }, [open, socket]);
 
+  const storePurchase = async (method: string) => {
+    try {
+      await fetch("/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items,
+          totalAmount: grandTotal,
+          paymentMethod: method,
+          shippingAddress: "Default Address", // You could add a field for this
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to store purchase:", err);
+    }
+  };
+
   const handlePay = async () => {
     if (!payMethod) return;
     setProcessing(true);
     // simulate short payment processing delay
     await new Promise(r => setTimeout(r, 1200));
     setProcessing(false);
+
+    // Store in MongoDB
+    await storePurchase(payMethod);
 
     // mark order placed immediately
     const now = Date.now();
@@ -136,8 +156,12 @@ export default function OrderModal({
     socket?.emit("order:start", { lat: coords.lat, lng: coords.lng });
   };
 
-  const handleCOD = () => {
+  const handleCOD = async () => {
     setPayMethod("cod");
+
+    // Store in MongoDB
+    await storePurchase("cod");
+
     // For COD, treat as placed immediately
     setOrderPlaced(true);
     setStatus("Your order will be delivered soon");
@@ -147,6 +171,7 @@ export default function OrderModal({
     const coords = customerCoords ?? { lat: 28.6139, lng: 77.209 };
     socket?.emit("order:start", { lat: coords.lat, lng: coords.lng });
   };
+
 
   const billItems = useMemo(
     () =>
@@ -207,48 +232,60 @@ export default function OrderModal({
 
               <div>
                 <h4 className="font-medium">Choose Payment Method</h4>
-                <div className="mt-2 flex gap-3">
-                  <button
-                    onClick={() => setPayMethod("card")}
-                    className={`px-3 py-2 rounded border ${
-                      payMethod === "card"
-                        ? "border-brand bg-brand/10"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    Card
-                  </button>
-                  <button
-                    onClick={() => setPayMethod("upi")}
-                    className={`px-3 py-2 rounded border ${
-                      payMethod === "upi"
-                        ? "border-brand bg-brand/10"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    UPI
-                  </button>
-                  <button
-                    onClick={handleCOD}
-                    className="px-3 py-2 rounded border border-gray-200"
-                  >
-                    Cash on Delivery
-                  </button>
-                </div>
-                {payMethod && payMethod !== "cod" && (
-                  <div className="mt-4">
-                    <button
-                      onClick={handlePay}
-                      disabled={processing}
-                      className="px-4 py-2 bg-brand text-white rounded"
-                    >
-                      {processing
-                        ? "Processing..."
-                        : `Pay ₹${grandTotal.toFixed(2)}`}
-                    </button>
+                {(session?.user as any)?.role === "admin" ? (
+                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <p className="text-amber-800 text-sm font-medium flex items-center gap-2">
+                       <span className="text-lg">⚠️</span>
+                       Admins are not allowed to make purchases. Please use a regular customer account for shopping.
+                    </p>
                   </div>
+                ) : (
+                  <>
+                    <div className="mt-2 flex gap-3">
+                      <button
+                        onClick={() => setPayMethod("card")}
+                        className={`px-3 py-2 rounded border ${
+                          payMethod === "card"
+                            ? "border-brand bg-brand/10"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        Card
+                      </button>
+                      <button
+                        onClick={() => setPayMethod("upi")}
+                        className={`px-3 py-2 rounded border ${
+                          payMethod === "upi"
+                            ? "border-brand bg-brand/10"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        UPI
+                      </button>
+                      <button
+                        onClick={handleCOD}
+                        className="px-3 py-2 rounded border border-gray-200"
+                      >
+                        Cash on Delivery
+                      </button>
+                    </div>
+                    {payMethod && payMethod !== "cod" && (
+                      <div className="mt-4">
+                        <button
+                          onClick={handlePay}
+                          disabled={processing}
+                          className="px-4 py-2 bg-brand text-white rounded"
+                        >
+                          {processing
+                            ? "Processing..."
+                            : `Pay ₹${grandTotal.toFixed(2)}`}
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
+
             </>
           ) : (
             <div className="space-y-6">

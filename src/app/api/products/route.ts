@@ -1,27 +1,41 @@
 import { NextResponse } from "next/server";
-import { products } from "../../../lib/products"; 
+import { getDb } from "../../../lib/dbConnect";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../../lib/auth";
+import { products as localProducts } from "../../../lib/products";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const query = searchParams.get("q")?.toLowerCase() || "";
-  
-  if (!query) {
-    return NextResponse.json(products);
+  try {
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get("q")?.toLowerCase() || "";
+
+    const filteredProducts = query
+      ? localProducts.filter((product) => {
+          const q = query.toLowerCase();
+          return (
+            product.name.toLowerCase().includes(q) ||
+            product.description.toLowerCase().includes(q) ||
+            product.category.toLowerCase().includes(q)
+          );
+        })
+      : localProducts;
+
+    return NextResponse.json(filteredProducts);
+  } catch (error) {
+    console.error("[GET /api/products] Error:", error);
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
-
-  const filtered = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(query) ||
-      p.description.toLowerCase().includes(query) ||
-      p.category.toLowerCase().includes(query)
-  );
-
-  return NextResponse.json(filtered);
 }
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
+
     const { name, description, price, unit, category, images } = body;
 
     if (!name || !price || !unit || !category || !images?.length) {
@@ -31,29 +45,31 @@ export async function POST(req: Request) {
       );
     }
 
-   
+    const db = await getDb();
+    const collection = db.collection("products");
+
     const newProduct = {
-      id: Date.now().toString(),
       name: String(name),
       description: String(description || ""),
       price: Number(price),
       unit: String(unit || ""),
       image: Array.isArray(images) && images.length ? String(images[0]) : "",
       category: String(category),
+      createdAt: new Date(),
     };
 
- 
-    products.push(newProduct as any);
+    const result = await collection.insertOne(newProduct);
 
     return NextResponse.json(
-      { message: "Product created", product: newProduct },
+      { message: "Product created", product: { ...newProduct, _id: result.insertedId } },
       { status: 201 }
     );
   } catch (error) {
-    console.log(error);
+    console.error("[POST /api/products] Error:", error);
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
     );
   }
 }
+

@@ -74,7 +74,17 @@ export default function Navbar() {
                 <span className="text-sm font-medium text-gray-700 hidden md:block">
                   {session.user?.name?.split(" ")[0] || "User"}
                 </span>
+                {(session.user as any)?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="ml-2 px-3 py-1 text-xs font-bold uppercase tracking-wider bg-purple-100 text-purple-700 rounded-md border border-purple-200 hover:bg-purple-200 transition-colors"
+                  >
+                    Admin
+                  </Link>
+                )}
+
               </div>
+
               <button
                 onClick={async () => {
                   await signOut({ redirect: false });

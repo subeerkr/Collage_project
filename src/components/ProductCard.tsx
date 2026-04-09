@@ -1,19 +1,27 @@
-import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "./AddToCartButton";
-import { Product } from "../lib/products";
+import { product } from "../lib/products";
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product }: { product: product }) {
+  const imageSrc =
+    product.image?.trim() ||
+    "https://res.cloudinary.com/dehccrol4/image/upload/v1763832952/apple-colorful-vector-design_341269-1123_af1e0a.jpg";
+
   return (
     <div className="bg-white rounded-md shadow-sm hover:shadow-md transition p-3 flex flex-col">
-      <Link href={`/product/${product.id}`} className="block">
-        <Image
-          src={product.image}
+      <Link
+        href={`/product/${product.id}`}
+        className="block rounded-md overflow-hidden border border-gray-100 bg-gray-50 mb-3"
+      >
+        <img
+          src={imageSrc}
           alt={product.name}
-          width={300}
-          height={300}
-          className="rounded mb-2 object-cover h-32 w-full"
+          className="w-full h-36 object-cover"
+          loading="lazy"
         />
+      </Link>
+
+      <Link href={`/product/${product.id}`} className="block">
         <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
           {product.name}
         </h3>

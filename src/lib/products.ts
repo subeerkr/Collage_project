@@ -3,7 +3,7 @@ export interface Category {
   name: string;
 }
 
-export interface Product {
+export interface product {
   id: string;
   name: string;
   description: string;
@@ -11,6 +11,28 @@ export interface Product {
   unit: string;
   image: string;
   category: string;
+}
+
+export type ProductLike = Partial<product> & {
+  _id?: { toString(): string };
+  id?: string;
+  title?: string;
+  img?: string;
+};
+
+export function normalizeProductRecord(product: ProductLike): product {
+  return {
+    id: product._id?.toString() ?? product.id ?? "",
+    name: product.name ?? product.title ?? "Product",
+    description: product.description ?? "",
+    price: typeof product.price === "number" ? product.price : Number(product.price) || 0,
+    unit: product.unit ?? "",
+    image:
+      product.image ??
+      product.img ??
+      "https://res.cloudinary.com/dehccrol4/image/upload/v1763832952/apple-colorful-vector-design_341269-1123_af1e0a.jpg",
+    category: product.category ?? "uncategorized",
+  };
 }
 
 export const categories: Category[] = [
@@ -48,7 +70,7 @@ export const categories: Category[] = [
   }
 ];
 
-export const products: Product[] = [
+export const products: product[] = [
   {
     id: 'apple',
     name: 'Red Apples',
