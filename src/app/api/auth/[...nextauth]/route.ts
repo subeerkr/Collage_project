@@ -2,7 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import prisma from "../../../../lib/prisma";
+import { findUserByEmail } from "../../../../lib/userStore";
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -22,28 +22,15 @@ const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Find user by email using Prisma
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email.toLowerCase() },
-          });
+          // Find user by email using file-based store
+          const user = await findUserByEmail(credentials.email.toLowerCase());
 
-          if (!user) {
-            return null;
-          }
+          if (!user) return null;
 
-          // Verify password using bcrypt
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password || "");
+          if (!isPasswordValid) return null;
 
-          if (!isPasswordValid) {
-            return null;
-          }
-
-          // Return user object (without password)
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
+          return { id: user.id, email: user.email, name: user.name };
         } catch (error) {
           console.error("Auth error:", error);
           return null;

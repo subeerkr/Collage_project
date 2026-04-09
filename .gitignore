@@ -6,4 +6,4 @@ node_modules/
 dist/
 build/
 
-/src/generated/prisma
+
