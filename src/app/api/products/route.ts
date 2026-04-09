@@ -1,6 +1,24 @@
 import { NextResponse } from "next/server";
 import { products } from "../../../lib/products"; 
 
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const query = searchParams.get("q")?.toLowerCase() || "";
+  
+  if (!query) {
+    return NextResponse.json(products);
+  }
+
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(query) ||
+      p.description.toLowerCase().includes(query) ||
+      p.category.toLowerCase().includes(query)
+  );
+
+  return NextResponse.json(filtered);
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();

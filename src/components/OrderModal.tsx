@@ -1,13 +1,9 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useCart } from "../context/CartContext";
-import dynamic from "next/dynamic";
+import OrderMap from "./OrderMap";
 import { DeliveryAgent } from "../lib/delivery";
 import { getSocket } from "../lib/socketClient";
-
-const MapboxMap = dynamic(() => import("./OrderMap.js").then(m => m.default), {
-  ssr: false,
-});
 
 type PaymentMethod = "card" | "upi" | "cod";
 
@@ -342,7 +338,7 @@ export default function OrderModal({
               {/* Show map when out for delivery */}
               {status === "Out for delivery" && (
                 <div className="mt-4 w-full h-64">
-                  <MapboxMap
+                  <OrderMap
                     pickup={
                       deliveryPartner
                         ? { lat: deliveryPartner.lat, lng: deliveryPartner.lng }

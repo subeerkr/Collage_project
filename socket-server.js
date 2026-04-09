@@ -25,7 +25,7 @@ const agents = [
   },
   {
     id: "agent_2",
-    name: "Priya Sharma",
+    name: "Mohan Sharma",
     phone: "+91 98765 67890",
     vehicle: "Scooter",
     vehicleNumber: "DL 8C CD 5678",
